@@ -100,7 +100,7 @@ def remove_from_planner(day, meal_id):
     db.session.commit()
     return jsonify({"message": "Meal removed from planner"})
 
-# ---------------- GROCERIES ----------------
+# GROCERIES 
 @app.route("/groceries", methods=["GET"])
 def get_groceries():
     results = db.session.execute(planner_table.select()).fetchall()

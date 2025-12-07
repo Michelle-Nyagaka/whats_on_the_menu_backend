@@ -1,19 +1,27 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Table
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
+
+planner_table = Table(
+    "planner",
+    db.metadata,
+    Column("day", String, primary_key=True),
+    Column("meal_id", Integer, ForeignKey("meals.id"), primary_key=True),
+)
 
 
 class Meal(db.Model):
     __tablename__ = "meals"
 
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    image = db.Column(db.String)
-    ingredients = db.Column(db.Text, nullable=False)
-    instructions = db.Column(db.Text, nullable=False)
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    image = Column(String)
+    ingredients = Column(Text)
+    instructions = Column(Text)
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    favorites = relationship("Favorite", back_populates="meal")
 
     def to_dict(self):
         return {
@@ -22,23 +30,19 @@ class Meal(db.Model):
             "image": self.image,
             "ingredients": self.ingredients,
             "instructions": self.instructions,
-            "created_at": self.created_at.isoformat()
         }
 
 
 class Favorite(db.Model):
     __tablename__ = "favorites"
 
-    id = db.Column(db.Integer, primary_key=True)
-    meal_id = db.Column(db.Integer, db.ForeignKey("meals.id"), nullable=False)
+    id = Column(Integer, primary_key=True)
+    meal_id = Column(Integer, ForeignKey("meals.id"))
 
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-    meal = db.relationship("Meal", backref="favorites")
+    meal = relationship("Meal", back_populates="favorites")
 
     def to_dict(self):
         return {
             "id": self.id,
             "meal_id": self.meal_id,
-            "created_at": self.created_at.isoformat()
         }
